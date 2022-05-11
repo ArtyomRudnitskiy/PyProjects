@@ -38,7 +38,17 @@ class ExportJSON:
 
 # примесный класс
 class ExDog(Dog, ExportJSON):
-    pass
+    def __init__(self, name, breed=None):
+        # вызов по MRO, вызывает метод первого в списке
+        super().__init__(name, breed)
+        #super(ExDog, self).__init__(name)
+
+
+class WoolenDog(Dog, ExportJSON):
+    def __init__(self, name, breed=None):
+        # явное указание, от кого наследуем метод
+        super(Dog, self).__init__(name)
+        self._breed = "Шерстяная собака породы {}".format(breed)
 
 
 if __name__ == '__main__':
@@ -55,4 +65,9 @@ if __name__ == '__main__':
     print()
 
     eDog = ExDog("Белка", breed="Дворняжка")
-    print(eDog.to_json())
+    print(eDog.to_json(), end="\n\n")
+
+    print("Порядок наследования для ExDog (MRO): " + str(ExDog.__mro__), end="\n\n")
+
+    wDog = WoolenDog("Жучка", "Такса")
+    print(wDog.get_breed())
