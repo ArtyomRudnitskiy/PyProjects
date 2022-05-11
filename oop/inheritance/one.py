@@ -1,4 +1,6 @@
 # цепочка наследования: Pet -> Dog -> Cat
+import json
+
 
 class Pet:
     def __init__(self, name=None):
@@ -25,6 +27,20 @@ class Cat(Dog):
         return "{}: meow".format(self._name)
 
 
+class ExportJSON:
+    def to_json(self):
+        return json.dumps({
+            "name": self._name,
+            "breed": self._breed
+        }
+        )
+
+
+# примесный класс
+class ExDog(Dog, ExportJSON):
+    pass
+
+
 if __name__ == '__main__':
     dog = Dog("Шарик", "Доберман")
     print(dog.say())
@@ -36,3 +52,7 @@ if __name__ == '__main__':
     print(cat.say())
     print(cat.get_breed())
 
+    print()
+
+    eDog = ExDog("Белка", breed="Дворняжка")
+    print(eDog.to_json())
