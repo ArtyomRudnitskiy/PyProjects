@@ -1,3 +1,5 @@
+# цепочка наследования: Pet -> Dog -> Cat
+
 class Pet:
     def __init__(self, name=None):
         self._name = name
@@ -15,8 +17,22 @@ class Dog(Pet):
         return "{}'s порода - {}".format(self._name, self._breed)
 
 
+class Cat(Dog):
+    def __init__(self, name, breed=None):
+        super().__init__(name, breed)
+
+    def say(self):
+        return "{}: meow".format(self._name)
+
+
 if __name__ == '__main__':
     dog = Dog("Шарик", "Доберман")
     print(dog.say())
     print(dog.get_breed())
+
+    print()
+
+    cat = Cat("Муся", "Сиамская")
+    print(cat.say())
+    print(cat.get_breed())
 
