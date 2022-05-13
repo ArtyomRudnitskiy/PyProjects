@@ -4,19 +4,17 @@ import csv
 
 class CarBase:
     def __init__(self, car_type, brand, photo_file_name, carrying):
-        extensions = (".jpg", ".jpeg", ".png", ".gif")
-        spl_file_name = os.path.splitext(photo_file_name)
-        if spl_file_name[1] not in extensions:
-            raise AttributeError("Wrong extension")
-
         self._car_type = car_type
         self._brand = brand
         self._photo_file_name = photo_file_name
         self._carrying = carrying
-        self._extension = spl_file_name[1]
+        self._extension = os.path.splitext(photo_file_name)[1]
 
     def get_photo_file_ext(self):
         return self._extension
+
+    def __str__(self):
+        return f"Type: {self._car_type}   Brand: {self._brand}   Photo: {self._photo_file_name}   Carrying: {self._carrying}"
 
 
 class Truck(CarBase):
@@ -47,21 +45,39 @@ class SpecMachine(CarBase):
 
 def get_car_list(csv_filename):
     car_list = []
+    extensions = (".jpg", ".jpeg", ".png", ".gif")
 
     with open(csv_filename) as csv_fd:
         reader = csv.reader(csv_fd, delimiter=';')
         next(reader)  # пропускаем заголовок
         for row in reader:
             if row and row[1] and row[3] and row[5]:
+
+                spl_file_name = os.path.splitext(row[3])
+                if spl_file_name[1] not in extensions:
+                    continue
+
+                try:
+                    carrying = float(row[5])
+                except ValueError:
+                    continue
+
                 if row[0] == "truck":
-                    car_list.append(Truck(row[1], row[3], row[5], row[4]))
+                    car_list.append(Truck(row[1], row[3], carrying, row[4]))
                 if row[0] == "car" and row[2]:
-                    car_list.append(Car(row[1], row[3], row[5], row[2]))
+                    try:
+                        passengers = float(row[2])
+                    except ValueError:
+                        continue
+                    car_list.append(Car(row[1], row[3], carrying, passengers))
                 if row[0] == "spec_machine" and row[6]:
-                    car_list.append(SpecMachine(row[1], row[3], row[5], row[6]))
+                    car_list.append(SpecMachine(row[1], row[3], carrying, row[6]))
 
     return car_list
 
 
 if __name__ == '__main__':
-    print(get_car_list("D:\Download Yandex\cars.csv"))
+    cars = get_car_list("D:\Download Yandex\cars.csv")
+    for i in cars:
+        print(i)
+
