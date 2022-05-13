@@ -71,3 +71,4 @@ if __name__ == '__main__':
 
     wDog = WoolenDog("Жучка", "Такса")
     print(wDog.get_breed())
+
