@@ -9,7 +9,3 @@ class FileReader:
         except FileNotFoundError:
             return ""
 
-
-if __name__ == '__main__':
-    reader = FileReader("C:\PyProjects\ex7.txt")
-    print(reader.read())
