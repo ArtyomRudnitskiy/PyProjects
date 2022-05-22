@@ -1,4 +1,5 @@
 import tkinter as tk
+import random
 
 
 def say_hello():
@@ -23,6 +24,11 @@ def disable_buttons():
     else:
         for btn in buttons_list:
             btn["state"] = tk.DISABLED
+
+
+def bg_color():
+    colors = ["red", "blue", "green", "white", "black"]
+    root.config(bg=random.choice(colors))
 
 
 root = tk.Tk()
@@ -64,13 +70,18 @@ btn4 = tk.Button(root, text=f"Counter: {counter}",
 btn4.pack()
 buttons_list.append(btn4)
 
-# fifth button "disabler"
-btn5 = tk.Button(root, text="Disable all the buttons",
+# fifth button "color changer"
+btn5 = tk.Button(root, text="Change mw color",
+                 command=bg_color)
+btn5.pack()
+buttons_list.append(btn5)
+
+# sixth button "disabler"
+btn6 = tk.Button(root, text="Disable all the buttons",
                  command=disable_buttons,
                  bg="red",
                  fg="white"
                  )
-btn5.pack()
-
+btn6.pack()
 
 root.mainloop()
