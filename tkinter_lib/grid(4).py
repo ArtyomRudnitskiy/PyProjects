@@ -30,8 +30,6 @@ for i in range(5):
     for j in range(3):
         tk.Button(root, text=f"Hello {i},{j}").grid(row=i, column=j, stick="we")
 
-root.
-
 root.columnconfigure(1, minsize=100)
 root.columnconfigure(0, minsize=150)
 
