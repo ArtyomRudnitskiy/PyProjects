@@ -33,6 +33,8 @@ def add_digit(digit):
 
     if value == "0" or value == "Result is undefined":
         expr_line.insert(0, str(digit))
+    elif value[-1] == "0":
+        expr_line.insert(0, value[:-1]+str(digit))
     else:
         expr_line.insert(0, value+str(digit))
     expr_line["state"] = tk.DISABLED
@@ -54,6 +56,7 @@ def add_operation(operation: str):
     expr_line["state"] = tk.DISABLED
 
 
+# we need to add the operator to the end of calculated expression (if it isn't equal sign)
 def calculate():
     expr_line["state"] = tk.NORMAL
     value = expr_line.get()
@@ -84,6 +87,8 @@ def erase():
         pass
     else:
         value = value[:-1]
+    if len(value) == 0:
+        value = "0"
     expr_line.insert(0, value)
     expr_line["state"] = tk.DISABLED
 
@@ -128,12 +133,12 @@ root['bg'] = "#EFEFEF"
 
 root.bind("<Key>", press_key)
 
-expr_line = tk.Entry(root, justify=tk.RIGHT, font=("Colibri 17 bold"))
+expr_line = tk.Entry(root, justify=tk.RIGHT, font="Colibri 17 bold")
 expr_line.insert(0, "0")
 expr_line["state"] = tk.DISABLED
 expr_line.grid(row=0, column=0, columnspan=4, sticky="we", padx=2,pady=2)
 
-tk.Button(text="CE", font=("Colibri 12 bold")).grid(row=1, column=0, stick="wens", padx=2, pady=2)
+tk.Button(text="CE", font="Colibri 12 bold").grid(row=1, column=0, stick="wens", padx=2, pady=2)
 make_clear_button().grid(row=1, column=1, stick="wens", padx=2, pady=2)
 make_erase_button().grid(row=1, column=2, stick="wens", padx=2, pady=2)
 make_math_button("/").grid(row=1, column=3, stick="wens", padx=2, pady=2)
@@ -155,7 +160,7 @@ make_math_button("+").grid(row=4, column=3, stick="wens", padx=2, pady=2)
 
 make_change_button().grid(row=5, column=0, stick="wens", padx=2, pady=2)
 make_digit_button(0).grid(row=5, column=1, stick="wens", padx=2, pady=2)
-tk.Button(text=",", font=("Colibri 12 bold")).grid(row=5, column=2, stick="wens", padx=2, pady=2)
+tk.Button(text=",", font="Colibri 12 bold").grid(row=5, column=2, stick="wens", padx=2, pady=2)
 make_equal_button("=").grid(row=5, column=3, stick="wens", padx=2, pady=2)
 
 root.grid_columnconfigure(0, minsize=60)
