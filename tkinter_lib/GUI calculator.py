@@ -18,6 +18,14 @@ def make_clear_button():
     return tk.Button(text="C", font="Colibri 12 bold", bg="#BEBFC1", command=lambda: clear())
 
 
+def make_erase_button():
+    return tk.Button(text="<", font="Colibri 12 bold", bg="#BEBFC1", command=lambda: erase())
+
+
+def make_change_button():
+    return tk.Button(text="+/-", font="Colibri 12 bold", command=lambda: change_sign())
+
+
 def add_digit(digit):
     expr_line["state"] = tk.NORMAL
     value = expr_line.get()
@@ -68,6 +76,33 @@ def clear():
     expr_line["state"] = tk.DISABLED
 
 
+def erase():
+    expr_line["state"] = tk.NORMAL
+    value = expr_line.get()
+    expr_line.delete(0, tk.END)
+    if value == "0":
+        pass
+    else:
+        value = value[:-1]
+    expr_line.insert(0, value)
+    expr_line["state"] = tk.DISABLED
+
+
+def change_sign():
+    expr_line["state"] = tk.NORMAL
+    value = expr_line.get()
+    expr_line.delete(0, tk.END)
+    if value[0] == "0" or value == "Result is undefined":
+        pass
+    else:
+        if value[0] == "-":
+            value = value[1:]
+        else:
+            value = "-" + value
+    expr_line.insert(0, value)
+    expr_line["state"] = tk.DISABLED
+
+
 def compare_lists(lst1, lst2):
     for element in lst1:
         if element in lst2:
@@ -83,7 +118,7 @@ def press_key(event):
     elif event.char == "\r":
         calculate()
     elif event.char == "\x08":
-        print("Jora")
+        erase()
 
 
 root = tk.Tk()
@@ -100,7 +135,7 @@ expr_line.grid(row=0, column=0, columnspan=4, sticky="we", padx=2,pady=2)
 
 tk.Button(text="CE", font=("Colibri 12 bold")).grid(row=1, column=0, stick="wens", padx=2, pady=2)
 make_clear_button().grid(row=1, column=1, stick="wens", padx=2, pady=2)
-tk.Button(text="<", font=("Colibri 12 bold")).grid(row=1, column=2, stick="wens", padx=2, pady=2)
+make_erase_button().grid(row=1, column=2, stick="wens", padx=2, pady=2)
 make_math_button("/").grid(row=1, column=3, stick="wens", padx=2, pady=2)
 
 make_digit_button(7).grid(row=2, column=0, stick="wens", padx=2, pady=2)
@@ -118,7 +153,7 @@ make_digit_button(2).grid(row=4, column=1, stick="wens", padx=2, pady=2)
 make_digit_button(3).grid(row=4, column=2, stick="wens", padx=2, pady=2)
 make_math_button("+").grid(row=4, column=3, stick="wens", padx=2, pady=2)
 
-tk.Button(text="+/-", font=("Colibri 12 bold")).grid(row=5, column=0, stick="wens", padx=2, pady=2)
+make_change_button().grid(row=5, column=0, stick="wens", padx=2, pady=2)
 make_digit_button(0).grid(row=5, column=1, stick="wens", padx=2, pady=2)
 tk.Button(text=",", font=("Colibri 12 bold")).grid(row=5, column=2, stick="wens", padx=2, pady=2)
 make_equal_button("=").grid(row=5, column=3, stick="wens", padx=2, pady=2)
