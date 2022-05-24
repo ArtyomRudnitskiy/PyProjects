@@ -1,4 +1,5 @@
 import tkinter as tk
+import re
 from tkinter import PhotoImage
 from tkinter import messagebox
 
@@ -44,9 +45,9 @@ def add_digit(digit):
     if value == "0" or value == "Result is undefined":
         expr_line.insert(0, str(digit))
     elif value[-1] == "0" and len(value) == 1 or value[-1] == "0" and value[-2] in "+-*/":
-        expr_line.insert(0, value[:-1]+str(digit))
+        expr_line.insert(0, value[:-1] + str(digit))
     else:
-        expr_line.insert(0, value+str(digit))
+        expr_line.insert(0, value + str(digit))
     expr_line["state"] = tk.DISABLED
 
 
@@ -62,7 +63,7 @@ def add_operation(operation: str):
         value = expr_line.get()
 
     expr_line.delete(0, tk.END)
-    expr_line.insert(0, value+operation)
+    expr_line.insert(0, value + operation)
     expr_line["state"] = tk.DISABLED
 
 
@@ -118,13 +119,13 @@ def change_sign():
     expr_line["state"] = tk.DISABLED
 
 
-# it's necessary to add ability to sum two float numbers
 def make_float():
     expr_line["state"] = tk.NORMAL
     value = expr_line.get()
+    value_lst = re.split(r"[+\-*/]", value)
     expr_line.delete(0, tk.END)
 
-    if "." not in value:
+    if "." not in value_lst[-1] and value != "Result is undefined":
         value = value + "."
 
     expr_line.insert(0, value)
