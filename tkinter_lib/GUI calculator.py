@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import PhotoImage
 from tkinter import messagebox
 
 
@@ -26,6 +27,15 @@ def make_change_button():
     return tk.Button(text="+/-", font="Colibri 12 bold", command=lambda: change_sign())
 
 
+def make_float_button():
+    return tk.Button(text=",", font="Colibri 12 bold", command=lambda: make_float())
+
+
+def make_sqrt_button():
+    icon = PhotoImage(file="sqrt.png")
+    return tk.Button(image=icon, text="sda", font="Colibri 12 bold", command=lambda: calc_sqrt())
+
+
 def add_digit(digit):
     expr_line["state"] = tk.NORMAL
     value = expr_line.get()
@@ -33,7 +43,7 @@ def add_digit(digit):
 
     if value == "0" or value == "Result is undefined":
         expr_line.insert(0, str(digit))
-    elif value[-1] == "0":
+    elif value[-1] == "0" and len(value) == 1 or value[-1] == "0" and value[-2] in "+-*/":
         expr_line.insert(0, value[:-1]+str(digit))
     else:
         expr_line.insert(0, value+str(digit))
@@ -108,6 +118,23 @@ def change_sign():
     expr_line["state"] = tk.DISABLED
 
 
+# it's necessary to add ability to sum two float numbers
+def make_float():
+    expr_line["state"] = tk.NORMAL
+    value = expr_line.get()
+    expr_line.delete(0, tk.END)
+
+    if "." not in value:
+        value = value + "."
+
+    expr_line.insert(0, value)
+    expr_line["state"] = tk.DISABLED
+
+
+def calc_sqrt():
+    pass
+
+
 def compare_lists(lst1, lst2):
     for element in lst1:
         if element in lst2:
@@ -136,9 +163,9 @@ root.bind("<Key>", press_key)
 expr_line = tk.Entry(root, justify=tk.RIGHT, font="Colibri 17 bold")
 expr_line.insert(0, "0")
 expr_line["state"] = tk.DISABLED
-expr_line.grid(row=0, column=0, columnspan=4, sticky="we", padx=2,pady=2)
+expr_line.grid(row=0, column=0, columnspan=4, sticky="we", padx=2, pady=2)
 
-tk.Button(text="CE", font="Colibri 12 bold").grid(row=1, column=0, stick="wens", padx=2, pady=2)
+make_sqrt_button().grid(row=1, column=0, stick="wens", padx=2, pady=2)
 make_clear_button().grid(row=1, column=1, stick="wens", padx=2, pady=2)
 make_erase_button().grid(row=1, column=2, stick="wens", padx=2, pady=2)
 make_math_button("/").grid(row=1, column=3, stick="wens", padx=2, pady=2)
@@ -160,7 +187,7 @@ make_math_button("+").grid(row=4, column=3, stick="wens", padx=2, pady=2)
 
 make_change_button().grid(row=5, column=0, stick="wens", padx=2, pady=2)
 make_digit_button(0).grid(row=5, column=1, stick="wens", padx=2, pady=2)
-tk.Button(text=",", font="Colibri 12 bold").grid(row=5, column=2, stick="wens", padx=2, pady=2)
+make_float_button().grid(row=5, column=2, stick="wens", padx=2, pady=2)
 make_equal_button("=").grid(row=5, column=3, stick="wens", padx=2, pady=2)
 
 root.grid_columnconfigure(0, minsize=60)
