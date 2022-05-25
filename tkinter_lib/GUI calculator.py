@@ -33,8 +33,9 @@ def make_float_button():
 
 
 def make_sqrt_button():
+    global icon
     icon = PhotoImage(file="sqrt.png")
-    return tk.Button(image=icon, text="sda", font="Colibri 12 bold", command=lambda: calc_sqrt())
+    return tk.Button(image=icon, bg="#BEBFC1", command=lambda: calc_sqrt())
 
 
 def add_digit(digit):
@@ -56,6 +57,8 @@ def add_operation(operation: str):
     value = expr_line.get()
     if value == "Result is undefined":
         operation = ""
+    elif value == "0":
+        value = ""
     elif value[-1] in "+-*/":
         value = value[:-1]
     elif compare_lists(["+", "-", "*", "/"], value):  # if one of operations in value
@@ -104,6 +107,7 @@ def erase():
     expr_line["state"] = tk.DISABLED
 
 
+# FIX - func should change sign of the last number
 def change_sign():
     expr_line["state"] = tk.NORMAL
     value = expr_line.get()
@@ -133,12 +137,21 @@ def make_float():
 
 
 def calc_sqrt():
-    pass
+    expr_line["state"] = tk.NORMAL
+    value = expr_line.get()
+
+    try:
+        value = (float(value))**0.5
+    except ArithmeticError:
+        value = "Result is undefined"
+
+    expr_line.insert(0, value)
+    expr_line["state"] = tk.DISABLED
 
 
 def compare_lists(lst1, lst2):
-    for element in lst1:
-        if element in lst2:
+    for element in lst1:  # for each sign
+        if element in lst2[1:]:  # for each element in list
             return True
     return False
 
