@@ -32,10 +32,10 @@ def make_float_button():
     return tk.Button(text=",", font="Colibri 12 bold", command=lambda: make_float())
 
 
-def make_sqrt_button():
+def make_square_button():
     global icon
-    icon = PhotoImage(file="sqrt.png")
-    return tk.Button(image=icon, bg="#BEBFC1", command=lambda: calc_sqrt())
+    icon = PhotoImage(file="square.png")
+    return tk.Button(image=icon, bg="#BEBFC1", command=lambda: calc_square())
 
 
 def add_digit(digit):
@@ -43,7 +43,7 @@ def add_digit(digit):
     value = expr_line.get()
     expr_line.delete(0, tk.END)
 
-    if value == "0" or value == "Result is undefined":
+    if value in ("0", "0.0", "Result is undefined"):
         expr_line.insert(0, str(digit))
     elif value[-1] == "0" and len(value) == 1 or value[-1] == "0" and value[-2] in "+-*/":
         expr_line.insert(0, value[:-1] + str(digit))
@@ -55,9 +55,8 @@ def add_digit(digit):
 def add_operation(operation: str):
     expr_line["state"] = tk.NORMAL
     value = expr_line.get()
-    if value == "Result is undefined":
-        operation = ""
-    elif value == "0":
+
+    if value in ("0", "0.0", "Result is undefined"):
         value = ""
     elif value[-1] in "+-*/":
         value = value[:-1]
@@ -80,7 +79,7 @@ def calculate():
 
     try:
         expr_line.insert(0, eval(value))
-    except ArithmeticError:
+    except Exception:
         expr_line.insert(0, "Result is undefined")
         # messagebox.showerror("Attention!", "Zero division error")
     expr_line["state"] = tk.DISABLED
@@ -136,14 +135,12 @@ def make_float():
     expr_line["state"] = tk.DISABLED
 
 
-def calc_sqrt():
+def calc_square():
     expr_line["state"] = tk.NORMAL
-    value = expr_line.get()
+    value = float(expr_line.get())
+    expr_line.delete(0, tk.END)
 
-    try:
-        value = (float(value))**0.5
-    except ArithmeticError:
-        value = "Result is undefined"
+    value = str(value**2)
 
     expr_line.insert(0, value)
     expr_line["state"] = tk.DISABLED
@@ -168,7 +165,7 @@ def press_key(event):
 
 
 root = tk.Tk()
-root.geometry("270x340")
+root.geometry("270x338")
 root.title("Calculator")
 root['bg'] = "#EFEFEF"
 
@@ -179,7 +176,7 @@ expr_line.insert(0, "0")
 expr_line["state"] = tk.DISABLED
 expr_line.grid(row=0, column=0, columnspan=4, sticky="we", padx=2, pady=2)
 
-make_sqrt_button().grid(row=1, column=0, stick="wens", padx=2, pady=2)
+make_square_button().grid(row=1, column=0, stick="wens", padx=2, pady=2)
 make_clear_button().grid(row=1, column=1, stick="wens", padx=2, pady=2)
 make_erase_button().grid(row=1, column=2, stick="wens", padx=2, pady=2)
 make_math_button("/").grid(row=1, column=3, stick="wens", padx=2, pady=2)
@@ -215,4 +212,5 @@ root.grid_rowconfigure(3, minsize=60)
 root.grid_rowconfigure(4, minsize=60)
 root.grid_rowconfigure(5, minsize=60)
 
+root.resizable(False, False)
 root.mainloop()
