@@ -21,7 +21,9 @@ def make_clear_button():
 
 
 def make_erase_button():
-    return tk.Button(text="<", font="Colibri 12 bold", bg="#BEBFC1", command=lambda: erase())
+    global erase_icon
+    erase_icon = PhotoImage(file="erase.png")
+    return tk.Button(image=erase_icon, bg="#BEBFC1", command=lambda: erase())
 
 
 def make_change_button():
@@ -33,9 +35,9 @@ def make_float_button():
 
 
 def make_square_button():
-    global icon
-    icon = PhotoImage(file="square.png")
-    return tk.Button(image=icon, bg="#BEBFC1", command=lambda: calc_square())
+    global square_icon
+    square_icon = PhotoImage(file="square.png")
+    return tk.Button(image=square_icon, bg="#BEBFC1", command=lambda: calc_square())
 
 
 def add_digit(digit):
@@ -137,7 +139,7 @@ def make_float():
 
 def calc_square():
     expr_line["state"] = tk.NORMAL
-    value = float(expr_line.get())
+    value = float(eval(expr_line.get()))
     expr_line.delete(0, tk.END)
 
     value = str(value**2)
@@ -168,6 +170,11 @@ root = tk.Tk()
 root.geometry("270x338")
 root.title("Calculator")
 root['bg'] = "#EFEFEF"
+root.resizable(False, False)
+
+# change icon
+icon = tk.PhotoImage(file="icon.png")
+root.iconphoto(False, icon)
 
 root.bind("<Key>", press_key)
 
@@ -212,5 +219,4 @@ root.grid_rowconfigure(3, minsize=60)
 root.grid_rowconfigure(4, minsize=60)
 root.grid_rowconfigure(5, minsize=60)
 
-root.resizable(False, False)
 root.mainloop()
