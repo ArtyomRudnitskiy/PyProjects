@@ -22,7 +22,7 @@ def make_clear_button():
 
 def make_erase_button():
     global erase_icon
-    erase_icon = PhotoImage(file="erase.png")
+    erase_icon = PhotoImage(file="data/erase.png")
     return tk.Button(image=erase_icon, bg="#BEBFC1", command=lambda: erase())
 
 
@@ -36,7 +36,7 @@ def make_float_button():
 
 def make_square_button():
     global square_icon
-    square_icon = PhotoImage(file="square.png")
+    square_icon = PhotoImage(file="data/square.png")
     return tk.Button(image=square_icon, bg="#BEBFC1", command=lambda: calc_square())
 
 
@@ -173,7 +173,7 @@ root['bg'] = "#EFEFEF"
 root.resizable(False, False)
 
 # change icon
-icon = tk.PhotoImage(file="icon.png")
+icon = tk.PhotoImage(file="data/icon.png")
 root.iconphoto(False, icon)
 
 root.bind("<Key>", press_key)
