@@ -1,5 +1,7 @@
 import tkinter as tk
 from random import shuffle
+from tkinter.messagebox import showinfo, showerror
+from tkinter import ttk
 
 colors = {
     1: "blue",
@@ -33,6 +35,8 @@ class MineSweeper:
     ROWS = 6
     COLUMNS = 6
     MINES = 5
+    IS_GAME_OVER = False
+    IS_FIRST_CLICK = True
 
     def __init__(self):
         self.buttons = []  # all the buttons of the playing field
@@ -41,9 +45,25 @@ class MineSweeper:
             for j in range(MineSweeper.COLUMNS + 2):
                 btn = MineButton(MineSweeper.root, x=i, y=j)
                 btn.config(command=lambda button=btn: self.click(button))
+                btn.bind("<Button-3>", self.right_mouse_click)
                 temp_list.append(btn)
-                # btn.grid(row=i, column=j)  # add to field
             self.buttons.append(temp_list)
+
+    @staticmethod
+    def right_mouse_click(event):
+        if MineSweeper.IS_GAME_OVER:
+            return
+
+        current_btn = event.widget
+
+        if current_btn["state"] == "normal":
+            current_btn["state"] = "disabled"
+            current_btn["text"] = "⚑"
+            current_btn["disabledforeground"] = "red"
+
+        elif current_btn["text"] == "⚑":
+            current_btn["state"] = "normal"
+            current_btn["text"] = ""
 
     def print_buttons(self):
         for i in range(1, MineSweeper.ROWS + 1):
@@ -56,53 +76,125 @@ class MineSweeper:
             print()
 
     def click(self, clicked_button: MineButton):
+        if MineSweeper.IS_GAME_OVER:
+            return
+
+        if MineSweeper.IS_FIRST_CLICK:
+            self.insert_mines(clicked_button.number)
+            self.count_bombs_around()
+            self.print_buttons()
+            MineSweeper.IS_FIRST_CLICK = False
+
         if clicked_button.is_mine:
             clicked_button.config(text="*", background="red", disabledforeground="black")
-            # ============================
-            clicked_button.is_open = True
-            # ============================
+            MineSweeper.IS_GAME_OVER = True
+            showinfo("Game over", "You lose!")
+            for i in range(1, MineSweeper.ROWS + 1):
+                for j in range(1, MineSweeper.COLUMNS + 1):
+                    btn = self.buttons[i][j]
+                    if btn.is_mine:
+                        btn.config(text="*")
+
         else:
             if clicked_button.bomb_amount:
                 color = colors.get(clicked_button.bomb_amount, 'black')
                 clicked_button.config(text=clicked_button.bomb_amount, disabledforeground=color)
-                # ============================
-                clicked_button.is_open = True
-                # ============================
             else:
                 self.search(clicked_button)
+
         clicked_button.config(state="disabled", relief=tk.SUNKEN)
+        clicked_button.is_open = True
 
     def search(self, btn: MineButton):
         queue = [btn]
         while queue:
             current_btn = queue.pop()
+
+            # if there are bombs around, open
             if current_btn.bomb_amount:
                 color = colors.get(current_btn.bomb_amount, 'black')
                 current_btn.config(text=current_btn.bomb_amount, disabledforeground=color)
+
+            # if there aren't, search among neighbours
             else:
-                pass
+                x, y = current_btn.x, current_btn.y
+                for dx in (-1, 0, 1):
+                    for dy in (-1, 0, 1):
+                        neighbour = self.buttons[x + dx][y + dy]
+                        if not neighbour.is_open and neighbour not in queue and 1 <= neighbour.x <= MineSweeper.ROWS \
+                                and 1 <= neighbour.y <= MineSweeper.COLUMNS:
+                            queue.append(neighbour)
             # ============================
             current_btn.is_open = True
             # ============================
             current_btn.config(state="disabled", relief=tk.SUNKEN)
 
-            if not current_btn.bomb_amount:
-                x, y = current_btn.x, current_btn.y
-                for dx in (-1, 0, 1):
-                    for dy in (-1, 0, 1):
-                        if not abs(dx - dy) == 1:
-                            continue
-
-                        neighbour = self.buttons[x + dx][y + dy]
-                        if not neighbour.is_open and neighbour not in queue and 1 <= neighbour.x <= MineSweeper.ROWS \
-                                and 1 <= neighbour.y <= MineSweeper.COLUMNS:
-                            queue.append(neighbour)
-
     def add_widgets(self):
+
+        menu_bar = tk.Menu(self.root)
+        self.root.config(menu=menu_bar)
+
+        settings_bar = tk.Menu(self.root, tearoff=False)
+        settings_bar.add_command(label="Play", command=self.reload)
+        settings_bar.add_command(label="Settings", command=self.game_settings)
+        settings_bar.add_command(label="Exit", command=self.root.destroy)
+
+        menu_bar.add_cascade(label="Menu", menu=settings_bar)
+
+        count = 1
         for i in range(1, MineSweeper.ROWS + 1):
             for j in range(1, MineSweeper.COLUMNS + 1):
                 btn = self.buttons[i][j]
-                btn.grid(row=i, column=j)  # add to field
+                btn.number = count
+                btn.grid(row=i, column=j, stick="wens")  # add to field
+                count += 1
+
+        # configure buttons stretching
+        for i in range(1, MineSweeper.ROWS + 1):
+            tk.Grid.rowconfigure(self.root, i, weight=1)
+
+        for j in range(1, MineSweeper.COLUMNS + 1):
+            tk.Grid.columnconfigure(self.root, j, weight=1)
+
+    def reload(self):
+        [child.destroy() for child in self.root.winfo_children()]  # delete every widget
+        self.__init__()
+        self.add_widgets()
+        MineSweeper.IS_FIRST_CLICK = True
+        MineSweeper.IS_GAME_OVER = False
+
+    def game_settings(self):
+        win_settings = tk.Toplevel(self.root)
+        win_settings.wm_title("Settings")
+
+        tk.Label(win_settings, text="Number of rows: ").grid(row=0, column=0)
+        row_entry = tk.Entry(win_settings)
+        row_entry.insert(0, str(MineSweeper.ROWS))
+        row_entry.grid(row=0, column=1, padx=20, pady=20)
+
+        tk.Label(win_settings, text="Number of columns: ").grid(row=1, column=0)
+        col_entry = tk.Entry(win_settings)
+        col_entry.insert(0, str(MineSweeper.COLUMNS))
+        col_entry.grid(row=1, column=1, padx=20, pady=20)
+
+        tk.Label(win_settings, text="Number of mines: ").grid(row=2, column=0)
+        mines_entry = tk.Entry(win_settings)
+        mines_entry.insert(0, str(MineSweeper.MINES))
+        mines_entry.grid(row=2, column=1, padx=20, pady=20)
+
+        save_btn = ttk.Button(win_settings, text="Apply",
+                             command=lambda: self.change_settings(row_entry, col_entry, mines_entry))
+        save_btn.grid(row=3, column=0, columnspan=2, stick="we", padx=5, pady=5)
+
+    def change_settings(self, row_entry, col_entry, mines_entry):
+        try:
+            MineSweeper.ROWS = int(row_entry.get())
+            MineSweeper.COLUMNS = int(col_entry.get())
+            MineSweeper.MINES = int(mines_entry.get())
+
+            self.reload()
+        except ValueError:
+            showerror("Error", "Invalid input")
 
     def open_all_buttons(self):
         for i in range(MineSweeper.ROWS + 2):
@@ -116,25 +208,21 @@ class MineSweeper:
 
     # inheritance?
     def start(self):
-        self.add_widgets()
-        self.insert_mines()
-        self.count_bombs_around()
         # self.open_all_buttons()
-        self.print_buttons()
+        self.add_widgets()
 
+        MineSweeper.root.title("Minesweeper")
+        MineSweeper.root.resizable(False, False)
         MineSweeper.root.mainloop()
 
-    def insert_mines(self):
-        mines_indexes = self.get_mines_indexes()
+    def insert_mines(self, number: int):
+        mines_indexes = self.get_mines_indexes(number)
         # print(mines_indexes)
-        count = 1
         for i in range(1, MineSweeper.ROWS + 1):
             for j in range(1, MineSweeper.COLUMNS + 1):
                 btn = self.buttons[i][j]
-                btn.number = count
                 if btn.number in mines_indexes:
                     btn.is_mine = True
-                count += 1
 
     def count_bombs_around(self):
         for i in range(1, MineSweeper.ROWS + 1):
@@ -150,8 +238,9 @@ class MineSweeper:
                 btn.bomb_amount = count_bomb
 
     @staticmethod
-    def get_mines_indexes():
+    def get_mines_indexes(excluded_number):
         indexes = list(range(1, MineSweeper.COLUMNS * MineSweeper.ROWS + 1))
+        indexes.remove(excluded_number)
         shuffle(indexes)
         # print(indexes)
         return indexes[:MineSweeper.MINES]
@@ -160,3 +249,4 @@ class MineSweeper:
 if __name__ == '__main__':
     game = MineSweeper()
     game.start()
+
