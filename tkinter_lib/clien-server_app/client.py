@@ -1,5 +1,8 @@
 import tkinter as tk
 from tkinter import ttk, colorchooser, messagebox
+import socket
+import pickle
+from PIL import Image
 
 
 class App(tk.Tk):
@@ -15,7 +18,7 @@ class App(tk.Tk):
         # =========
 
         # table of functions
-        heads = ["ID", "Function", "Line thickness", "Line color", "Line type", "Grid", "From", "To"]
+        heads = ["ID", "Function", "Line width", "Line color", "Line type", "Grid", "From", "To"]
         self.func_table = ttk.Treeview(self, columns=heads, show="headings")
 
         for header in heads:
@@ -44,6 +47,7 @@ class App(tk.Tk):
         tk.Label(self, text="IP").place(relx=0.72, relheight=0.05)
 
         self.ip_var = tk.StringVar()
+        self.ip_var.set("127.0.0.1")  # LOCAL ip
         self.ip_input = ttk.Entry(self, textvariable=self.ip_var)
         self.ip_input.place(relx=0.72, rely=0.05, relwidth=0.27, relheight=0.04)
 
@@ -51,6 +55,7 @@ class App(tk.Tk):
         tk.Label(self, text="Port").place(relx=0.72, rely=0.12, relheight=0.05)
 
         self.port_var = tk.StringVar()
+        self.port_var.set("2000")  # LOCAL port
         self.port_input = ttk.Entry(self, textvariable=self.port_var)
         self.port_input.place(relx=0.72, rely=0.17, relwidth=0.27, relheight=0.04)
 
@@ -81,7 +86,7 @@ class App(tk.Tk):
         self.grid_checkbtn.place(relx=0.72, rely=0.49, relwidth=0.1, relheight=0.04)
 
         # line width scale
-        tk.Label(self, text="Line thickness").place(relx=0.72, rely=0.56, relheight=0.05)
+        tk.Label(self, text="Line width").place(relx=0.72, rely=0.56, relheight=0.05)
 
         self.lwidth_scale = ttk.Scale(self, from_=1, to=10, command=self.scale_label)
         self.lwidth_scale.place(relx=0.72, rely=0.62, relwidth=0.2, relheight=0.04)
@@ -112,11 +117,43 @@ class App(tk.Tk):
         pass
 
     def get_graph(self):
-        pass
+        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            client.connect((self.ip_var.get(), int(self.port_var.get())))
+        except ConnectionRefusedError:
+            messagebox.showerror("Error", "Failed connection attempt")
+            return
+
+        # sending selected function
+        func_index = self.func_table.selection()  # find selected function
+        if len(func_index) != 1:
+            messagebox.showerror("Error", "You can plot only one function graph")
+            return
+        else:
+            function = self.functions[func_index[0]]  # get function to plot
+            client.sendall(pickle.dumps(function))  # send function to plot
+        print("Sent")
+
+        # getting image from server
+        file = open(f"client_plot{func_index[0]}.jpg", mode="wb")  # куда запишем картинку
+
+        while True:
+            data = client.recv(2048)
+            if not data:
+                break
+            file.write(data)
+
+        file.close()
+        client.close()
+
+        # show plot
+        picture = Image.open(f"client_plot{func_index[0]}.jpg")
+        picture.save(f"client_plot{func_index[0]}.jpg")
+        picture.show()
 
     def del_func_from_table(self):
-        selection = self.func_table.selection()
-        for index in selection[::-1]:
+        indexes = self.func_table.selection()
+        for index in indexes:
             self.functions.pop(index)
             self.func_table.delete(index)
 
@@ -142,15 +179,18 @@ class App(tk.Tk):
                          ]
             self.functions[self.func_table.insert(parent="", index=tk.END, values=func_data, iid=str(self.id))] = \
                 Function(*func_data[1:])
+
+            print(self.functions)
+
             self.id += 1
         except Exception:
             messagebox.showerror("Error", "Invalid input")
 
 
 class Function:
-    def __init__(self, function, lwidth, lcolor, ltype, grid, from_, to):
-        self.function, self.lwidth, self.lcolor, self.ltype = function, lwidth, lcolor, ltype
-        self.from_, self.to, self.rborder = grid, from_, to
+    def __init__(self, expression, lwidth, lcolor, ltype, grid, from_, to):
+        self.expression, self.lwidth, self.lcolor, self.ltype = expression, lwidth, lcolor, ltype
+        self.grid, self.from_, self.to = grid, from_, to
 
 
 if __name__ == '__main__':
