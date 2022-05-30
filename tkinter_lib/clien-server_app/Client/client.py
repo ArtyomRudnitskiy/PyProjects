@@ -30,14 +30,14 @@ class App(tk.Tk):
         self.functions = dict()  # contains all the functions (class) in the table
 
         # buttons under the table
-        self.btn_save = ttk.Button(self, text="Get graph", command=self.dialog_window)
-        self.btn_save.place(relx=0.06, rely=0.91, relwidth=0.1, relheight=0.08)
+        btn_get_graph = ttk.Button(self, text="Get graph", command=self.dialog_window)
+        btn_get_graph.place(relx=0.06, rely=0.91, relwidth=0.1, relheight=0.08)
 
-        self.btn_save = ttk.Button(self, text="Delete function", command=self.del_func_from_table)
-        self.btn_save.place(relx=0.31, rely=0.91, relwidth=0.1, relheight=0.08)
+        btn_del_f = ttk.Button(self, text="Delete function", command=self.del_func_from_table)
+        btn_del_f.place(relx=0.31, rely=0.91, relwidth=0.1, relheight=0.08)
 
-        self.btn_save = ttk.Button(self, text="Add function", command=self.add_func_to_table)
-        self.btn_save.place(relx=0.56, rely=0.91, relwidth=0.1, relheight=0.08)
+        btn_add_f = ttk.Button(self, text="Add function", command=self.add_func_to_table)
+        btn_add_f.place(relx=0.56, rely=0.91, relwidth=0.1, relheight=0.08)
 
         # ==========
         # RIGHT PART
@@ -48,48 +48,48 @@ class App(tk.Tk):
 
         self.ip_var = tk.StringVar()
         self.ip_var.set("127.0.0.1")  # LOCAL ip
-        self.ip_input = ttk.Entry(self, textvariable=self.ip_var)
-        self.ip_input.place(relx=0.72, rely=0.05, relwidth=0.27, relheight=0.04)
+        ip_input = ttk.Entry(self, textvariable=self.ip_var)
+        ip_input.place(relx=0.72, rely=0.05, relwidth=0.27, relheight=0.04)
 
         # port input field
         tk.Label(self, text="Port").place(relx=0.72, rely=0.12, relheight=0.05)
 
         self.port_var = tk.StringVar()
         self.port_var.set("2000")  # LOCAL port
-        self.port_input = ttk.Entry(self, textvariable=self.port_var)
-        self.port_input.place(relx=0.72, rely=0.17, relwidth=0.27, relheight=0.04)
+        port_input = ttk.Entry(self, textvariable=self.port_var)
+        port_input.place(relx=0.72, rely=0.17, relwidth=0.27, relheight=0.04)
 
         # function input field
         tk.Label(self, text="Function").place(relx=0.72, rely=0.24, relheight=0.05)
 
         tk.Label(self, text="f(x) = ").place(relx=0.72, rely=0.29, relheight=0.04)
         self.func_var = tk.StringVar()
-        self.func_input = ttk.Entry(self, textvariable=self.func_var)
-        self.func_input.place(relx=0.75, rely=0.29, relwidth=0.24, relheight=0.04)
+        func_input = ttk.Entry(self, textvariable=self.func_var)
+        func_input.place(relx=0.75, rely=0.29, relwidth=0.24, relheight=0.04)
 
         # segment input field
         tk.Label(self, text="Construct a function on a segment").place(relx=0.72, rely=0.36, relheight=0.05)
 
         tk.Label(self, text="from").place(relx=0.72, rely=0.42, relwidth=0.03, relheight=0.04)
         self.from_var = tk.DoubleVar()
-        self.from_input = ttk.Entry(self, textvariable=self.from_var)
-        self.from_input.place(relx=0.75, rely=0.42, relwidth=0.1, relheight=0.04)
+        from_input = ttk.Entry(self, textvariable=self.from_var)
+        from_input.place(relx=0.75, rely=0.42, relwidth=0.1, relheight=0.04)
 
         tk.Label(self, text="to").place(relx=0.86, rely=0.42, relwidth=0.03, relheight=0.04)
         self.to_var = tk.DoubleVar()
-        self.to_input = ttk.Entry(self, textvariable=self.to_var)
-        self.to_input.place(relx=0.89, rely=0.42, relwidth=0.1, relheight=0.04)
+        to_input = ttk.Entry(self, textvariable=self.to_var)
+        to_input.place(relx=0.89, rely=0.42, relwidth=0.1, relheight=0.04)
 
         # graph grid choice
         self.grid_var = tk.BooleanVar()
-        self.grid_checkbtn = ttk.Checkbutton(self, text='Graph grid', variable=self.grid_var)
-        self.grid_checkbtn.place(relx=0.72, rely=0.49, relwidth=0.1, relheight=0.04)
+        grid_checkbtn = ttk.Checkbutton(self, text='Graph grid', variable=self.grid_var)
+        grid_checkbtn.place(relx=0.72, rely=0.49, relwidth=0.1, relheight=0.04)
 
         # line width scale
         tk.Label(self, text="Line width").place(relx=0.72, rely=0.56, relheight=0.05)
 
-        self.lwidth_scale = ttk.Scale(self, from_=1, to=10, command=self.scale_label)
-        self.lwidth_scale.place(relx=0.72, rely=0.62, relwidth=0.2, relheight=0.04)
+        lwidth_scale = ttk.Scale(self, from_=1, to=10, command=self.scale_label)
+        lwidth_scale.place(relx=0.72, rely=0.62, relwidth=0.2, relheight=0.04)
 
         self.scale_var = tk.IntVar()  # this label shows number on the scale
         self.scale_var.set(1)  # default value
@@ -106,8 +106,8 @@ class App(tk.Tk):
         ttk.Radiobutton(self, text="--", variable=self.lrype_var, value="--").place(relx=0.92, rely=0.74)
 
         # color button
-        self.btn_color = ttk.Button(self, text="Color", command=self.choose_color)
-        self.btn_color.place(relx=0.74, rely=0.91, relwidth=0.23, relheight=0.08)
+        btn_color = ttk.Button(self, text="Color", command=self.choose_color)
+        btn_color.place(relx=0.74, rely=0.91, relwidth=0.23, relheight=0.08)
         self.line_color = "black"  # default line color
 
     def get_graph(self):

@@ -7,33 +7,36 @@ import matplotlib.pyplot as plt
 import numpy
 import numexpr as ne
 import os
+from PIL import Image
+import re
 
 
 class ServerApp(tk.Tk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.banned_ip = []
 
         self.title("Server")
         self.geometry('300x400')
         self.minsize(300, 400)
 
-        # server control buttons
+        # server control button
         self.start_btn = ttk.Button(self, text="Start the server", command=self.start_server)
         self.start_btn.place(relx=0.01, rely=0.02, relwidth=0.98, relheight=0.1)
 
-        self.stop_btn = ttk.Button(self, text="Stop the server", command=self.stop_server)
-        self.stop_btn.place(relx=0.01, rely=0.14, relwidth=0.98, relheight=0.1)
+        self.server_ip_lbl = tk.Label(self, text=f"Server IP: 127.0.0.1")
+        self.server_ip_lbl.place(relx=0.01, rely=0.14, relheight=0.05)
 
         # input address to ban
-        tk.Label(self, text="IP for ban").place(relx=0.01, rely=0.3, relheight=0.05)
+        tk.Label(self, text="IP for ban").place(relx=0.01, rely=0.26, relheight=0.05)
 
         self.ip_var = tk.StringVar()
         self.ip_input = ttk.Entry(self, textvariable=self.ip_var)
-        self.ip_input.place(relx=0.01, rely=0.35, relwidth=0.98, relheight=0.05)
+        self.ip_input.place(relx=0.01, rely=0.31, relwidth=0.98, relheight=0.05)
 
-        # add button
+        # "add" button
         self.add_ip_btn = ttk.Button(self, text="Add", command=self.add_address)
-        self.add_ip_btn.place(relx=0.01, rely=0.41, relwidth=0.98, relheight=0.08)
+        self.add_ip_btn.place(relx=0.01, rely=0.37, relwidth=0.98, relheight=0.08)
 
         # table of ip addresses
         heads = ["ID", "IP address"]
@@ -46,22 +49,42 @@ class ServerApp(tk.Tk):
         self.ip_table.place(relx=0.01, rely=0.54, relheight=0.35, relwidth=0.98)
         self.id = 1  # id for addresses in the table
 
-        # del button
+        # "del" button
         self.add_ip_btn = ttk.Button(self, text="Delete", command=self.del_address)
         self.add_ip_btn.place(relx=0.01, rely=0.9, relwidth=0.98, relheight=0.08)
 
     def start_server(self):
         # start server
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        # get local ip and set it in label
+        #server_ip = socket.gethostbyname(socket.gethostname())
+        #self.server_ip_lbl.config(text=f"Server IP: {server_ip}")
+
+        # start of receiving information
         server.bind(("127.0.0.1", 2000))
         server.listen(4)
 
-        for _ in range(4):
+        # HOW to fix it???
+        while True:
             # connect to client
             client_socket, client_address = server.accept()
+            # print(client_address)
 
-            if str(client_address) in self.ip_table:
+            if client_address[0] in self.banned_ip:
                 print("Banned ip")
+
+                client_socket.recv(2048)
+                # send ban image
+                file = open("ip_banned.jpg", mode="rb")
+
+                data = file.read(2048)
+                while data:
+                    client_socket.send(data)
+                    data = file.read(2048)
+
+                file.close()
+                client_socket.close()  # disconnect
                 continue
 
             # get function information from client
@@ -98,25 +121,30 @@ class ServerApp(tk.Tk):
         if function.grid:
             plt.grid()
 
-        plt.plot(x, ne.evaluate(function.expression),
-                 color=function.lcolor,
-                 linestyle=function.ltype,
-                 linewidth=function.lwidth)
+        expression = exp(function.expression)
 
-        plt.savefig("plot.jpg")
-        fig, ax = plt.subplots()
-        fig.clear(True)
+        try:
+            plt.plot(x, ne.evaluate(expression),
+                     color=function.lcolor,
+                     linestyle=function.ltype,
+                     linewidth=function.lwidth)
 
-    def stop_server(self):
-        pass
+            plt.savefig("plot.jpg")
+            fig, ax = plt.subplots()
+            fig.clear(True)
+        except Exception as ex:
+            print("Error")
+            picture = Image.open('func_error.jpg')
+            picture.save('plot.jpg')
 
     def add_address(self):
         address = self.ip_var.get()
         # if ip is correct, add it to the table
         if len(address.split(".")) == 4:
             self.ip_var.set("")  # clear entry
-            lst = [str(self.id), address]
+            self.banned_ip.append(address)  # add to banned
 
+            lst = [str(self.id), address]
             self.ip_table.insert(parent="", index=tk.END, values=lst, iid=str(self.id))
             self.id += 1
         else:
@@ -125,10 +153,65 @@ class ServerApp(tk.Tk):
     def del_address(self):
         indexes = self.ip_table.selection()
         for index in indexes:
+            ip = self.ip_table.item(index)["values"][1]  # get value of selected line
+            self.banned_ip.remove(ip)  # delete from ban list
             self.ip_table.delete(index)
+
+
+def exp(f):
+    """Fix functions for plot"""
+    print(f)
+    match = re.findall(r'\d[x]\d', str(f))  # заменить сначала хчислох
+    for m in match:
+        l = m.split("x")[0] + '*x*' + m.split("x")[1]
+        f1 = f.replace(m, l)
+
+    try:
+        f = f1
+    except Exception:
+        pass
+
+    match = re.findall(r'\d[x]', str(f))
+    for m in match:
+        l = m.split("x")[0] + '*x'
+        f1 = f.replace(m, l)
+    try:
+        f = f1
+    except Exception:
+        pass
+
+    match = re.findall(r'[x]\d', str(f))
+    for m in match:
+        l = "x*" + m.split("x")[1]
+        f1 = f.replace(m, l)
+    try:
+        f = f1
+    except Exception:
+        pass
+
+    f1 = f.replace('e^', 'exp')
+    try:
+        f = f1
+    except Exception:
+        pass
+
+    f1 = f.replace('^', '**')
+    try:
+        f = f1
+    except Exception:
+        pass
+
+    f1 = f.replace('ln', 'log')
+    try:
+        f = f1
+    except Exception:
+        pass
+
+    return f
 
 
 if __name__ == '__main__':
     app = ServerApp()
     app.mainloop()
+
 
