@@ -30,13 +30,13 @@ class App(tk.Tk):
         self.functions = dict()  # contains all the functions (class) in the table
 
         # buttons under the table
-        self.btn_save = ttk.Button(self, text="Save graph to file", command=self.save_graph)
+        self.btn_save = ttk.Button(self, text="Get graph", command=self.dialog_window)
         self.btn_save.place(relx=0.06, rely=0.91, relwidth=0.1, relheight=0.08)
 
-        self.btn_save = ttk.Button(self, text="Get graph", command=self.get_graph)
+        self.btn_save = ttk.Button(self, text="Delete function", command=self.del_func_from_table)
         self.btn_save.place(relx=0.31, rely=0.91, relwidth=0.1, relheight=0.08)
 
-        self.btn_save = ttk.Button(self, text="Delete", command=self.del_func_from_table)
+        self.btn_save = ttk.Button(self, text="Add function", command=self.add_func_to_table)
         self.btn_save.place(relx=0.56, rely=0.91, relwidth=0.1, relheight=0.08)
 
         # ==========
@@ -102,25 +102,20 @@ class App(tk.Tk):
         self.lrype_var.set("-")
 
         ttk.Radiobutton(self, text="-", variable=self.lrype_var, value="-").place(relx=0.72, rely=0.74)
-        ttk.Radiobutton(self, text="-.-", variable=self.lrype_var, value="-.-").place(relx=0.82, rely=0.74)
+        ttk.Radiobutton(self, text="-.-", variable=self.lrype_var, value="-.").place(relx=0.82, rely=0.74)
         ttk.Radiobutton(self, text="--", variable=self.lrype_var, value="--").place(relx=0.92, rely=0.74)
 
-        # right buttons
+        # color button
         self.btn_color = ttk.Button(self, text="Color", command=self.choose_color)
-        self.btn_color.place(relx=0.74, rely=0.91, relwidth=0.1, relheight=0.08)
+        self.btn_color.place(relx=0.74, rely=0.91, relwidth=0.23, relheight=0.08)
         self.line_color = "black"  # default line color
 
-        self.btn_add = ttk.Button(self, text="Add function", command=self.add_func_to_table)
-        self.btn_add.place(relx=0.88, rely=0.91, relwidth=0.1, relheight=0.08)
-
-    def save_graph(self):
-        pass
-
     def get_graph(self):
+        # connecting to server
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             client.connect((self.ip_var.get(), int(self.port_var.get())))
-        except ConnectionRefusedError:
+        except (ConnectionRefusedError, OSError):
             messagebox.showerror("Error", "Failed connection attempt")
             return
 
@@ -131,25 +126,29 @@ class App(tk.Tk):
             return
         else:
             function = self.functions[func_index[0]]  # get function to plot
-            client.sendall(pickle.dumps(function))  # send function to plot
-        print("Sent")
+            client.send(pickle.dumps(function))  # send function to plot
 
         # getting image from server
-        file = open(f"client_plot{func_index[0]}.jpg", mode="wb")  # куда запишем картинку
+        file = open(f"client_plot{func_index[0]}.jpg", mode="wb")  # the plot will be here
 
-        while True:
-            data = client.recv(2048)
-            if not data:
-                break
+        data = client.recv(2048)  # get plot from server and write it down
+        while data:
             file.write(data)
-
+            data = client.recv(2048)
         file.close()
-        client.close()
+        client.close()  # disconnect from server
 
         # show plot
         picture = Image.open(f"client_plot{func_index[0]}.jpg")
-        picture.save(f"client_plot{func_index[0]}.jpg")
+        # picture.save(f"PIL_client_plot{func_index[0]}.jpg")
         picture.show()
+
+    def dialog_window(self):
+        answer = messagebox.askyesno(
+            title="Question",
+            message="Save graph?")
+        if answer:
+            self.get_graph()
 
     def del_func_from_table(self):
         indexes = self.func_table.selection()
@@ -179,8 +178,6 @@ class App(tk.Tk):
                          ]
             self.functions[self.func_table.insert(parent="", index=tk.END, values=func_data, iid=str(self.id))] = \
                 Function(*func_data[1:])
-
-            print(self.functions)
 
             self.id += 1
         except Exception:

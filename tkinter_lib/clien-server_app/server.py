@@ -55,28 +55,22 @@ class ServerApp(tk.Tk):
         server.listen(4)
 
         while True:
-            client_socket, client_address = server.accept()
-            # print('Connected:', client_address)
-            all_data = bytearray()
+            client_socket, client_address = server.accept()  # начинаем принимать соединения
+            print('connected:', client_address)  # выводим информацию о подключении
 
-            while True:
-                data = client_socket.recv(2048)
-                if not data:
-                    break
-                all_data += data
+            data = client_socket.recv(2048)  # get plot from server and write it down
 
-            function = pickle.loads(all_data)
-            print('Obj:', function)
+            function = pickle.loads(data)
+            print(function)
 
             self.plot_func(function)
 
             file = open("plot.jpg", mode="rb")
 
-            while True:
-                data = file.read(2048)
-                if not data:
-                    break
+            data = file.read(2048)
+            while data:
                 client_socket.send(data)
+                data = file.read(2048)
 
             file.close()
 
@@ -88,20 +82,20 @@ class ServerApp(tk.Tk):
         plt.title("Graph of the function y = " + function.expression)
         plt.xlabel("x")
         plt.ylabel("y")
-        scope = numpy.arange(function.from_, function.to, 0.1)
+        x = numpy.arange(float(function.from_), float(function.to), 0.1)
 
         # plot graph
         if function.grid:
             plt.grid()
 
-        plt.plot(scope, ne.evaluate(function.expression),
+        plt.plot(x, ne.evaluate(function.expression),
                  color=function.lcolor,
                  linestyle=function.ltype,
                  linewidth=function.lwidth)
 
         plt.savefig("plot.jpg")
-        # fig, ax = plt.subplots()
-        # fig.clear(True)
+        fig, ax = plt.subplots()
+        fig.clear(True)
 
     def stop_server(self):
         pass
