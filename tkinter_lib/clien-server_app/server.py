@@ -6,6 +6,7 @@ from client import Function
 import matplotlib.pyplot as plt
 import numpy
 import numexpr as ne
+import os
 
 
 class ServerApp(tk.Tk):
@@ -50,21 +51,27 @@ class ServerApp(tk.Tk):
         self.add_ip_btn.place(relx=0.01, rely=0.9, relwidth=0.98, relheight=0.08)
 
     def start_server(self):
+        # start server
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.bind(("127.0.0.1", 2000))
         server.listen(4)
 
-        while True:
-            client_socket, client_address = server.accept()  # начинаем принимать соединения
-            print('connected:', client_address)  # выводим информацию о подключении
+        for _ in range(4):
+            # connect to client
+            client_socket, client_address = server.accept()
 
-            data = client_socket.recv(2048)  # get plot from server and write it down
+            if str(client_address) in self.ip_table:
+                print("Banned ip")
+                continue
 
-            function = pickle.loads(data)
-            print(function)
+            # get function information from client
+            data = client_socket.recv(2048)
+            function = pickle.loads(data)  # convert information to a Function object
 
+            # give information to build a graph
             self.plot_func(function)
 
+            # open plot image after plot_func, read and send it
             file = open("plot.jpg", mode="rb")
 
             data = file.read(2048)
@@ -73,8 +80,11 @@ class ServerApp(tk.Tk):
                 data = file.read(2048)
 
             file.close()
+            client_socket.close()  # disconnect
 
-            client_socket.close()
+            # delete plot after sending
+            path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "plot.jpg")
+            os.remove(path)
 
     @staticmethod
     def plot_func(function: Function):
@@ -102,6 +112,7 @@ class ServerApp(tk.Tk):
 
     def add_address(self):
         address = self.ip_var.get()
+        # if ip is correct, add it to the table
         if len(address.split(".")) == 4:
             self.ip_var.set("")  # clear entry
             lst = [str(self.id), address]

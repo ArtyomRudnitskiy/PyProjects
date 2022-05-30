@@ -44,7 +44,7 @@ class App(tk.Tk):
         # ==========
 
         # IP input field
-        tk.Label(self, text="IP").place(relx=0.72, relheight=0.05)
+        tk.Label(self, text="Server IP").place(relx=0.72, relheight=0.05)
 
         self.ip_var = tk.StringVar()
         self.ip_var.set("127.0.0.1")  # LOCAL ip
@@ -71,12 +71,12 @@ class App(tk.Tk):
         tk.Label(self, text="Construct a function on a segment").place(relx=0.72, rely=0.36, relheight=0.05)
 
         tk.Label(self, text="from").place(relx=0.72, rely=0.42, relwidth=0.03, relheight=0.04)
-        self.from_var = tk.StringVar()
+        self.from_var = tk.DoubleVar()
         self.from_input = ttk.Entry(self, textvariable=self.from_var)
         self.from_input.place(relx=0.75, rely=0.42, relwidth=0.1, relheight=0.04)
 
         tk.Label(self, text="to").place(relx=0.86, rely=0.42, relwidth=0.03, relheight=0.04)
-        self.to_var = tk.StringVar()
+        self.to_var = tk.DoubleVar()
         self.to_input = ttk.Entry(self, textvariable=self.to_var)
         self.to_input.place(relx=0.89, rely=0.42, relwidth=0.1, relheight=0.04)
 
@@ -140,7 +140,6 @@ class App(tk.Tk):
 
         # show plot
         picture = Image.open(f"client_plot{func_index[0]}.jpg")
-        # picture.save(f"PIL_client_plot{func_index[0]}.jpg")
         picture.show()
 
     def dialog_window(self):
@@ -166,7 +165,14 @@ class App(tk.Tk):
 
     def add_func_to_table(self):
         try:
-            # need to process invalid input
+            if self.func_var.get() == "":
+                print("Empty func")
+                raise ValueError
+
+            if self.from_var.get() >= self.to_var.get():
+                print("More less")
+                raise ValueError
+
             func_data = [self.id,
                          self.func_var.get(),
                          self.scale_var.get(),
@@ -180,7 +186,7 @@ class App(tk.Tk):
                 Function(*func_data[1:])
 
             self.id += 1
-        except Exception:
+        except ValueError:
             messagebox.showerror("Error", "Invalid input")
 
 
