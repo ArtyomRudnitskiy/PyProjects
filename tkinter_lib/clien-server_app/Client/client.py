@@ -111,6 +111,7 @@ class App(tk.Tk):
         self.line_color = "black"  # default line color
 
     def get_graph(self):
+
         # connecting to server
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
@@ -121,7 +122,10 @@ class App(tk.Tk):
 
         # sending selected function
         func_index = self.func_table.selection()  # find selected function
-        if len(func_index) != 1:
+        if len(func_index) == 0:
+            messagebox.showerror("Error", "You need to select one function in the table")
+            return
+        elif len(func_index) > 1:
             messagebox.showerror("Error", "You can plot only one function graph")
             return
         else:
@@ -164,11 +168,14 @@ class App(tk.Tk):
         self.line_color = color_code[1]
 
     def add_func_to_table(self):
+        error_text = "Invalid input"
         try:
             if self.func_var.get() == "":
+                error_text = "Field 'f(x)' is empty"
                 raise ValueError
 
             if self.from_var.get() >= self.to_var.get():
+                error_text = "Parameter 'from' should be less than 'to'"
                 raise ValueError
 
             func_data = [self.id,
@@ -185,7 +192,7 @@ class App(tk.Tk):
 
             self.id += 1
         except ValueError:
-            messagebox.showerror("Error", "Invalid input")
+            messagebox.showerror("Error",  error_text)
 
 
 class Function:
