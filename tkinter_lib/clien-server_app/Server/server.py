@@ -2,13 +2,18 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import socket
 import pickle
-from client import Function
 import matplotlib.pyplot as plt
 import numpy
 import numexpr as ne
 import os
 from PIL import Image
 import re
+
+
+class Function:
+    def __init__(self, expression, lwidth, lcolor, ltype, grid, from_, to):
+        self.expression, self.lwidth, self.lcolor, self.ltype = expression, lwidth, lcolor, ltype
+        self.grid, self.from_, self.to = grid, from_, to
 
 
 class ServerApp(tk.Tk):

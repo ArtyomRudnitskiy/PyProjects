@@ -49,7 +49,7 @@ class App(tk.Tk):
         self.ip_var = tk.StringVar()
         self.ip_var.set("127.0.0.1")  # LOCAL ip
         ip_input = ttk.Entry(self, textvariable=self.ip_var)
-        ip_input.place(relx=0.72, rely=0.05, relwidth=0.27, relheight=0.04)
+        ip_input.place(relx=0.72, rely=0.05, relwidth=0.27, relheight=0.05)
 
         # port input field
         tk.Label(self, text="Port").place(relx=0.72, rely=0.12, relheight=0.05)
@@ -57,43 +57,43 @@ class App(tk.Tk):
         self.port_var = tk.StringVar()
         self.port_var.set("2000")  # LOCAL port
         port_input = ttk.Entry(self, textvariable=self.port_var)
-        port_input.place(relx=0.72, rely=0.17, relwidth=0.27, relheight=0.04)
+        port_input.place(relx=0.72, rely=0.17, relwidth=0.27, relheight=0.05)
 
         # function input field
         tk.Label(self, text="Function").place(relx=0.72, rely=0.24, relheight=0.05)
 
-        tk.Label(self, text="f(x) = ").place(relx=0.72, rely=0.29, relheight=0.04)
+        tk.Label(self, text="f(x) = ").place(relx=0.72, rely=0.29, relheight=0.05)
         self.func_var = tk.StringVar()
         func_input = ttk.Entry(self, textvariable=self.func_var)
-        func_input.place(relx=0.75, rely=0.29, relwidth=0.24, relheight=0.04)
+        func_input.place(relx=0.75, rely=0.29, relwidth=0.24, relheight=0.05)
 
         # segment input field
         tk.Label(self, text="Construct a function on a segment").place(relx=0.72, rely=0.36, relheight=0.05)
 
-        tk.Label(self, text="from").place(relx=0.72, rely=0.42, relwidth=0.03, relheight=0.04)
+        tk.Label(self, text="from").place(relx=0.72, rely=0.42, relwidth=0.03, relheight=0.05)
         self.from_var = tk.DoubleVar()
         from_input = ttk.Entry(self, textvariable=self.from_var)
-        from_input.place(relx=0.75, rely=0.42, relwidth=0.1, relheight=0.04)
+        from_input.place(relx=0.75, rely=0.42, relwidth=0.1, relheight=0.05)
 
-        tk.Label(self, text="to").place(relx=0.86, rely=0.42, relwidth=0.03, relheight=0.04)
+        tk.Label(self, text="to").place(relx=0.86, rely=0.42, relwidth=0.03, relheight=0.05)
         self.to_var = tk.DoubleVar()
         to_input = ttk.Entry(self, textvariable=self.to_var)
-        to_input.place(relx=0.89, rely=0.42, relwidth=0.1, relheight=0.04)
+        to_input.place(relx=0.89, rely=0.42, relwidth=0.1, relheight=0.05)
 
         # graph grid choice
         self.grid_var = tk.BooleanVar()
         grid_checkbtn = ttk.Checkbutton(self, text='Graph grid', variable=self.grid_var)
-        grid_checkbtn.place(relx=0.72, rely=0.49, relwidth=0.1, relheight=0.04)
+        grid_checkbtn.place(relx=0.72, rely=0.49, relwidth=0.1, relheight=0.05)
 
         # line width scale
         tk.Label(self, text="Line width").place(relx=0.72, rely=0.56, relheight=0.05)
 
         lwidth_scale = ttk.Scale(self, from_=1, to=10, command=self.scale_label)
-        lwidth_scale.place(relx=0.72, rely=0.62, relwidth=0.2, relheight=0.04)
+        lwidth_scale.place(relx=0.72, rely=0.62, relwidth=0.2, relheight=0.05)
 
         self.scale_var = tk.IntVar()  # this label shows number on the scale
         self.scale_var.set(1)  # default value
-        ttk.Label(self, text=0, textvariable=self.scale_var).place(relx=0.93, rely=0.62, relwidth=0.07, relheight=0.04)
+        ttk.Label(self, text=0, textvariable=self.scale_var).place(relx=0.93, rely=0.62, relwidth=0.07, relheight=0.05)
 
         # line type choice
         tk.Label(self, text="Line type").place(relx=0.72, rely=0.69, relheight=0.05)
