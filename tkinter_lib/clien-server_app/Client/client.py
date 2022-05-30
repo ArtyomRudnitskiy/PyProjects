@@ -166,11 +166,9 @@ class App(tk.Tk):
     def add_func_to_table(self):
         try:
             if self.func_var.get() == "":
-                print("Empty func")
                 raise ValueError
 
             if self.from_var.get() >= self.to_var.get():
-                print("More less")
                 raise ValueError
 
             func_data = [self.id,
