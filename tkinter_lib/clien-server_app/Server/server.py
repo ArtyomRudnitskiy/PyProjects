@@ -94,6 +94,9 @@ class ServerApp(tk.Tk):
 
             # get function information from client
             data = client_socket.recv(2048)
+            # ==========================
+            # EOFError: Ran out of input
+            # ==========================
             function = pickle.loads(data)  # convert information to a Function object
 
             # give information to build a graph
@@ -114,8 +117,7 @@ class ServerApp(tk.Tk):
             path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "plot.jpg")
             os.remove(path)
 
-    @staticmethod
-    def plot_func(function: Function):
+    def plot_func(self, function: Function):
         # configure graph
         plt.title("Graph of the function y = " + function.expression)
         plt.xlabel("x")
@@ -126,7 +128,7 @@ class ServerApp(tk.Tk):
         if function.grid:
             plt.grid()
 
-        expression = exp(function.expression)
+        expression = self.exp(function.expression)
 
         try:
             plt.plot(x, ne.evaluate(expression),
@@ -141,6 +143,58 @@ class ServerApp(tk.Tk):
             print("Error")
             picture = Image.open('func_error.jpg')
             picture.save('plot.jpg')
+
+    @staticmethod
+    def exp(f):
+        """Fix functions for plot"""
+        print(f)
+        match = re.findall(r'\d[x]\d', str(f))  # заменить сначала хчислох
+        for m in match:
+            l = m.split("x")[0] + '*x*' + m.split("x")[1]
+            f1 = f.replace(m, l)
+
+        try:
+            f = f1
+        except Exception:
+            pass
+
+        match = re.findall(r'\d[x]', str(f))
+        for m in match:
+            l = m.split("x")[0] + '*x'
+            f1 = f.replace(m, l)
+        try:
+            f = f1
+        except Exception:
+            pass
+
+        match = re.findall(r'[x]\d', str(f))
+        for m in match:
+            l = "x*" + m.split("x")[1]
+            f1 = f.replace(m, l)
+        try:
+            f = f1
+        except Exception:
+            pass
+
+        f1 = f.replace('e^', 'exp')
+        try:
+            f = f1
+        except Exception:
+            pass
+
+        f1 = f.replace('^', '**')
+        try:
+            f = f1
+        except Exception:
+            pass
+
+        f1 = f.replace('ln', 'log')
+        try:
+            f = f1
+        except Exception:
+            pass
+
+        return f
 
     def add_address(self):
         address = self.ip_var.get()
@@ -161,58 +215,6 @@ class ServerApp(tk.Tk):
             ip = self.ip_table.item(index)["values"][1]  # get value of selected line
             self.banned_ip.remove(ip)  # delete from ban list
             self.ip_table.delete(index)
-
-
-def exp(f):
-    """Fix functions for plot"""
-    print(f)
-    match = re.findall(r'\d[x]\d', str(f))  # заменить сначала хчислох
-    for m in match:
-        l = m.split("x")[0] + '*x*' + m.split("x")[1]
-        f1 = f.replace(m, l)
-
-    try:
-        f = f1
-    except Exception:
-        pass
-
-    match = re.findall(r'\d[x]', str(f))
-    for m in match:
-        l = m.split("x")[0] + '*x'
-        f1 = f.replace(m, l)
-    try:
-        f = f1
-    except Exception:
-        pass
-
-    match = re.findall(r'[x]\d', str(f))
-    for m in match:
-        l = "x*" + m.split("x")[1]
-        f1 = f.replace(m, l)
-    try:
-        f = f1
-    except Exception:
-        pass
-
-    f1 = f.replace('e^', 'exp')
-    try:
-        f = f1
-    except Exception:
-        pass
-
-    f1 = f.replace('^', '**')
-    try:
-        f = f1
-    except Exception:
-        pass
-
-    f1 = f.replace('ln', 'log')
-    try:
-        f = f1
-    except Exception:
-        pass
-
-    return f
 
 
 if __name__ == '__main__':
