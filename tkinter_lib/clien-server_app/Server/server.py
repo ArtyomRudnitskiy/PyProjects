@@ -63,11 +63,13 @@ class ServerApp(tk.Tk):
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         # get local ip and set it in label
-        #server_ip = socket.gethostbyname(socket.gethostname())
-        #self.server_ip_lbl.config(text=f"Server IP: {server_ip}")
+        server_ip = socket.gethostbyname(socket.gethostname())
+        # self.server_ip_lbl.config(text=f"Server IP: {server_ip}")
+        print("Server IP: " + server_ip)
+        print("Server port: 2000")
 
         # start of receiving information
-        server.bind(("127.0.0.1", 2000))
+        server.bind((server_ip, 2000))
         server.listen(4)
 
         # HOW to fix it???
@@ -77,7 +79,7 @@ class ServerApp(tk.Tk):
             # print(client_address)
 
             if client_address[0] in self.banned_ip:
-                print("Banned ip")
+                # print("Banned ip")
 
                 client_socket.recv(2048)
                 # send ban image
@@ -117,6 +119,9 @@ class ServerApp(tk.Tk):
             path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "plot.jpg")
             os.remove(path)
 
+    def func(self):
+        pass
+
     def plot_func(self, function: Function):
         # configure graph
         plt.title("Graph of the function y = " + function.expression)
@@ -140,7 +145,7 @@ class ServerApp(tk.Tk):
             fig, ax = plt.subplots()
             fig.clear(True)
         except Exception as ex:
-            print("Error")
+            # print("Error")
             picture = Image.open('func_error.jpg')
             picture.save('plot.jpg')
 
