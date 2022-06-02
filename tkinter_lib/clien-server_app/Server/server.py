@@ -29,19 +29,31 @@ class ServerApp(tk.Tk):
         self.start_btn = ttk.Button(self, text="Start the server", command=self.start_server)
         self.start_btn.place(relx=0.01, rely=0.02, relwidth=0.98, relheight=0.1)
 
-        # self.server_ip_lbl = tk.Label(self, text=f"Server IP: 127.0.0.1")
-        # self.server_ip_lbl.place(relx=0.01, rely=0.14, relheight=0.05)
+        self.start_btn = ttk.Button(self, text="Get address", command=self.get_address)
+        self.start_btn.place(relx=0.01, rely=0.13, relwidth=0.98, relheight=0.1)
+
+        # input server port
+        tk.Label(self, text="Server port:").place(relx=0.01, rely=0.24, relheight=0.05)
+
+        self.port_var = tk.StringVar()
+        self.port_var.set("2000")
+        self.port_input = ttk.Entry(self, textvariable=self.port_var)
+        self.port_input.place(relx=0.23, rely=0.24, relwidth=0.76, relheight=0.05)
+
+        self.serv_ip_var = "unknown"
+        self.server_ip_lbl = tk.Label(self, text=f"Server IP: {self.serv_ip_var}")
+        self.server_ip_lbl.place(relx=0.01, rely=0.3, relheight=0.05)
 
         # input address to ban
-        tk.Label(self, text="IP for ban").place(relx=0.01, rely=0.26, relheight=0.05)
+        tk.Label(self, text="IP for ban:").place(relx=0.01, rely=0.39, relheight=0.05)
 
         self.ip_var = tk.StringVar()
         self.ip_input = ttk.Entry(self, textvariable=self.ip_var)
-        self.ip_input.place(relx=0.01, rely=0.31, relwidth=0.98, relheight=0.05)
+        self.ip_input.place(relx=0.23, rely=0.39, relwidth=0.76, relheight=0.05)
 
         # "add" button
         self.add_ip_btn = ttk.Button(self, text="Add", command=self.add_address)
-        self.add_ip_btn.place(relx=0.01, rely=0.37, relwidth=0.98, relheight=0.08)
+        self.add_ip_btn.place(relx=0.01, rely=0.45, relwidth=0.98, relheight=0.08)
 
         # table of ip addresses
         heads = ["ID", "IP address"]
@@ -58,18 +70,39 @@ class ServerApp(tk.Tk):
         self.add_ip_btn = ttk.Button(self, text="Delete", command=self.del_address)
         self.add_ip_btn.place(relx=0.01, rely=0.9, relwidth=0.98, relheight=0.08)
 
+    def get_address(self):
+        if self.port_var.get() == "":
+            messagebox.showerror("Error", "First, enter the port")
+            return
+
+        try:
+            int(self.port_var.get())
+        except ValueError:
+            messagebox.showerror("Error", "Invalid server port")
+            return
+
+        # get server ip from socket lib
+        server_ip = socket.gethostbyname(socket.gethostname())
+        self.serv_ip_var = server_ip
+        self.server_ip_lbl.config(text=f"Server IP: {server_ip}")
+        self.port_input.config(state="disabled")
+
     def start_server(self):
+        if self.serv_ip_var == "unknown":
+            messagebox.showerror("Error", "You didn't press 'Get address'")
+            return
+
         # start server
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         # get local ip and set it in label
-        server_ip = socket.gethostbyname(socket.gethostname())
+        # server_ip = socket.gethostbyname(socket.gethostname())
         # self.server_ip_lbl.config(text=f"Server IP: {server_ip}")
-        print("Server IP: " + server_ip)
-        print("Server port: 2000")
+        print("Server IP: " + self.serv_ip_var)
+        print("Server port: " + self.port_var.get())
 
         # start of receiving information
-        server.bind((server_ip, 2000))
+        server.bind((self.serv_ip_var, int(self.port_var.get())))
         server.listen(4)
 
         # HOW to fix it???
@@ -96,9 +129,6 @@ class ServerApp(tk.Tk):
 
             # get function information from client
             data = client_socket.recv(2048)
-            # ==========================
-            # EOFError: Ran out of input
-            # ==========================
             function = pickle.loads(data)  # convert information to a Function object
 
             # give information to build a graph
