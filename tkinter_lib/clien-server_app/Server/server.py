@@ -29,8 +29,8 @@ class ServerApp(tk.Tk):
         self.start_btn = ttk.Button(self, text="Start the server", command=self.start_server)
         self.start_btn.place(relx=0.01, rely=0.02, relwidth=0.98, relheight=0.1)
 
-        self.server_ip_lbl = tk.Label(self, text=f"Server IP: 127.0.0.1")
-        self.server_ip_lbl.place(relx=0.01, rely=0.14, relheight=0.05)
+        # self.server_ip_lbl = tk.Label(self, text=f"Server IP: 127.0.0.1")
+        # self.server_ip_lbl.place(relx=0.01, rely=0.14, relheight=0.05)
 
         # input address to ban
         tk.Label(self, text="IP for ban").place(relx=0.01, rely=0.26, relheight=0.05)
@@ -119,9 +119,6 @@ class ServerApp(tk.Tk):
             path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "plot.jpg")
             os.remove(path)
 
-    def func(self):
-        pass
-
     def plot_func(self, function: Function):
         # configure graph
         plt.title("Graph of the function y = " + function.expression)
@@ -150,56 +147,57 @@ class ServerApp(tk.Tk):
             picture.save('plot.jpg')
 
     @staticmethod
-    def exp(f):
+    def exp(func):
         """Fix functions for plot"""
-        print(f)
-        match = re.findall(r'\d[x]\d', str(f))  # заменить сначала хчислох
+        match = re.findall(r'\d[x]\d', str(func))  # заменить сначала хчислох
+        print(match)
+
         for m in match:
             l = m.split("x")[0] + '*x*' + m.split("x")[1]
-            f1 = f.replace(m, l)
+            f1 = func.replace(m, l)
 
         try:
-            f = f1
+            func = f1
         except Exception:
             pass
 
-        match = re.findall(r'\d[x]', str(f))
+        match = re.findall(r'\d[x]', str(func))
         for m in match:
             l = m.split("x")[0] + '*x'
-            f1 = f.replace(m, l)
+            f1 = func.replace(m, l)
         try:
-            f = f1
+            func = f1
         except Exception:
             pass
 
-        match = re.findall(r'[x]\d', str(f))
+        match = re.findall(r'[x]\d', str(func))
         for m in match:
             l = "x*" + m.split("x")[1]
-            f1 = f.replace(m, l)
+            f1 = func.replace(m, l)
         try:
-            f = f1
+            func = f1
         except Exception:
             pass
 
-        f1 = f.replace('e^', 'exp')
+        f1 = func.replace('e^', 'exp')
         try:
-            f = f1
+            func = f1
         except Exception:
             pass
 
-        f1 = f.replace('^', '**')
+        f1 = func.replace('^', '**')
         try:
-            f = f1
+            func = f1
         except Exception:
             pass
 
-        f1 = f.replace('ln', 'log')
+        f1 = func.replace('ln', 'log')
         try:
-            f = f1
+            func = f1
         except Exception:
             pass
 
-        return f
+        return func
 
     def add_address(self):
         address = self.ip_var.get()
