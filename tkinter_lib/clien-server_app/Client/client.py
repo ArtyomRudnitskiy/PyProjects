@@ -118,7 +118,7 @@ class App(tk.Tk):
             client.connect((self.ip_var.get(), int(self.port_var.get())))
         except (ConnectionRefusedError, OSError):
             messagebox.showerror("Error", "Failed connection attempt")
-            return
+            return 
 
         # sending selected function
         func_index = self.func_table.selection()  # find selected function

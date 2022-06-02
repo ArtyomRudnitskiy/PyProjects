@@ -103,6 +103,7 @@ class ServerApp(tk.Tk):
 
         # start of receiving information
         server.bind((self.serv_ip_var, int(self.port_var.get())))
+
         server.listen(4)
 
         # HOW to fix it???
