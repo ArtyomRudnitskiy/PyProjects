@@ -156,6 +156,14 @@ class MineSweeper:
         for j in range(1, MineSweeper.COLUMNS + 1):
             tk.Grid.columnconfigure(self.root, j, weight=1)
 
+        grid_mid = int(MineSweeper.COLUMNS/2)
+
+        mines_lbl = tk.Label(self.root, text=f"Mines: {MineSweeper.MINES}")
+        mines_lbl.grid(row=MineSweeper.ROWS + 2, column=1, columnspan=grid_mid)
+
+        mines_lbl = tk.Label(self.root, text=f"Time: 0")
+        mines_lbl.grid(row=MineSweeper.ROWS + 2, column=MineSweeper.COLUMNS-grid_mid+1, columnspan=grid_mid)
+
     def reload(self):
         [child.destroy() for child in self.root.winfo_children()]  # delete every widget
         self.__init__()
@@ -191,6 +199,11 @@ class MineSweeper:
             MineSweeper.ROWS = int(row_entry.get())
             MineSweeper.COLUMNS = int(col_entry.get())
             MineSweeper.MINES = int(mines_entry.get())
+
+            if MineSweeper.ROWS < 3:
+                MineSweeper.ROWS = 3
+            if MineSweeper.COLUMNS < 3:
+                MineSweeper.COLUMNS = 3
 
             self.reload()
         except ValueError:
