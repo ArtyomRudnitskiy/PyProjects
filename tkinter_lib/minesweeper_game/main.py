@@ -39,6 +39,8 @@ class MineSweeper:
     IS_FIRST_CLICK = True
 
     def __init__(self):
+        self.time_lbl = None
+        self.mines_lbl = None
         self.buttons = []  # all the buttons of the playing field
         for i in range(MineSweeper.ROWS + 2):
             temp_list = []
@@ -49,18 +51,19 @@ class MineSweeper:
                 temp_list.append(btn)
             self.buttons.append(temp_list)
 
-    @staticmethod
-    def right_mouse_click(event):
+    def right_mouse_click(self, event):
         if MineSweeper.IS_GAME_OVER:
             return
 
         current_btn = event.widget
 
+        # if there is no flag
         if current_btn["state"] == "normal":
             current_btn["state"] = "disabled"
             current_btn["text"] = "⚑"
             current_btn["disabledforeground"] = "red"
 
+        # if there is flag
         elif current_btn["text"] == "⚑":
             current_btn["state"] = "normal"
             current_btn["text"] = ""
@@ -158,11 +161,11 @@ class MineSweeper:
 
         grid_mid = int(MineSweeper.COLUMNS/2)
 
-        mines_lbl = tk.Label(self.root, text=f"Mines: {MineSweeper.MINES}")
-        mines_lbl.grid(row=MineSweeper.ROWS + 2, column=1, columnspan=grid_mid)
+        self.mines_lbl = tk.Label(self.root, text=f"Mines: {MineSweeper.MINES}")
+        self.mines_lbl.grid(row=MineSweeper.ROWS + 2, column=1, columnspan=grid_mid)
 
-        mines_lbl = tk.Label(self.root, text=f"Time: 0")
-        mines_lbl.grid(row=MineSweeper.ROWS + 2, column=MineSweeper.COLUMNS-grid_mid+1, columnspan=grid_mid)
+        self.time_lbl = tk.Label(self.root, text=f"Time: 0")
+        self.time_lbl.grid(row=MineSweeper.ROWS + 2, column=MineSweeper.COLUMNS-grid_mid+1, columnspan=grid_mid)
 
     def reload(self):
         [child.destroy() for child in self.root.winfo_children()]  # delete every widget

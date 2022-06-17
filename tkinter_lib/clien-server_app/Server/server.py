@@ -9,6 +9,8 @@ import os
 from PIL import Image
 import re
 
+if __name__ == '__main__':
+
 
 class Function:
     def __init__(self, expression, lwidth, lcolor, ltype, grid, from_, to):
